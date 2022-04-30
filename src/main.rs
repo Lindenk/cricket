@@ -1,8 +1,11 @@
+mod player;
+
 use std::f32::consts::PI;
 
 use bevy::prelude::*;
 use bevy_kira_audio::{Audio, AudioPlugin};
 
+use player::{spawn_player};
 
 use heron::*;
 
@@ -13,6 +16,7 @@ fn main() {
         .add_plugin(PhysicsPlugin::default()) // Add the plugin
         .insert_resource(Gravity::from(Vec2::new(0.0, -600.0))) // Define the gravity
         .add_startup_system(spawn)
+        .add_startup_system(spawn_player)
         .add_system(log_collisions)
         .run();
 }
