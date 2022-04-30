@@ -5,7 +5,7 @@ use std::f32::consts::PI;
 use bevy::prelude::*;
 use bevy_kira_audio::{Audio, AudioPlugin};
 
-use player::{spawn_player};
+use player::{spawn_player, handle_input};
 
 use heron::*;
 
@@ -17,12 +17,15 @@ fn main() {
         .insert_resource(Gravity::from(Vec2::new(0.0, -600.0))) // Define the gravity
         .add_startup_system(spawn)
         .add_startup_system(spawn_player)
-        .add_system(log_collisions)
+        //.add_system(log_collisions)
+        .add_system(handle_input)
         .run();
 }
 
 fn spawn(mut commands: Commands) {
-    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
+    let mut camera = OrthographicCameraBundle::new_2d();
+    camera.transform.translation.z = 1.;
+    commands.spawn_bundle(camera);
 
     // The ground
     let size = Vec2::new(1000.0, 20.0);
