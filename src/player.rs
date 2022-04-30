@@ -1,7 +1,16 @@
 use bevy::prelude::*;
 use heron::prelude::*;
 
-use std::collections::HashSet;
+pub struct PlayerPlugin;
+
+impl Plugin for PlayerPlugin {
+  fn build(&self, app: &mut App) {
+    app
+      .add_startup_system(spawn_player)
+      .add_system(handle_input)
+      .add_system(check_grounded);
+  }
+}
 
 #[derive(Component)]
 pub struct Player {
@@ -56,7 +65,6 @@ pub fn handle_input(input: Res<Input<KeyCode>>, mut players: Query<(&mut Velocit
 
 pub fn check_grounded(mut players: Query<(Entity, &mut Player)>, mut events: EventReader<CollisionEvent>) {
   for event in events.iter() {
-    println!("Got an event!");
     match event {
       CollisionEvent::Started(d1, d2) => {
         for d in [d1, d2].iter() {
@@ -76,7 +84,6 @@ pub fn check_grounded(mut players: Query<(Entity, &mut Player)>, mut events: Eve
           }
         }
       }
-      _ => ()
     }
   }
 }
