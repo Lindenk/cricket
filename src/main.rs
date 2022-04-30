@@ -1,12 +1,11 @@
 mod player;
 mod background;
-use std::f32::consts::PI;
 
 use bevy::prelude::*;
 use bevy_kira_audio::{Audio, AudioPlugin};
 
-use player::{spawn_player, handle_input};
 use background::{spawn_background, update_background, test_camera};
+use player::{spawn_player, handle_input, check_grounded};
 
 use heron::*;
 
@@ -22,6 +21,7 @@ fn main() {
 
         //.add_system(log_collisions)
         .add_system(handle_input)
+        .add_system(check_grounded)
         .add_system(update_background)
         .add_system(test_camera)
         .run();
@@ -83,7 +83,7 @@ fn spawn(mut commands: Commands) {
             ..Default::default()
         });
     // The Ball
-    let size = Vec2::new(30.0, 30.0);
+    //let size = Vec2::new(30.0, 30.0);
     /*commands
         // Spawn a bundle that contains at least a `GlobalTransform`
         .spawn_bundle(SpriteBundle {

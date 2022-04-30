@@ -49,14 +49,14 @@ pub fn update_background(mut set: ParamSet<(Query<& Transform, With<Camera>>, Qu
 
   
   for mut layer in set.p1().iter_mut() {
-    println!("Layer: {:?}", layer);
+    //println!("Layer: {:?}", layer);
     layer.translation.x = (camera_x * -(layer.translation.z/999.));
   }
 }
 
 pub fn test_camera(time: Res<Time>, mut camera: Query<&mut Transform, With<Camera>>) {
   for mut c in camera.iter_mut() {
-    println!("Camera!!!!!!: {:?}", c);
+    //println!("Camera!!!!!!: {:?}", c);
     c.translation.x = (time.seconds_since_startup().sin() * 100.) as f32;
   }
 }

@@ -51,3 +51,29 @@ pub fn handle_input(input: Res<Input<KeyCode>>, mut players: Query<(&mut Velocit
     }
   }
 }
+
+pub fn check_grounded(mut players: Query<(Entity, &mut Player)>, mut events: EventReader<CollisionEvent>) {
+  for event in events.iter() {
+    println!("Got an event!");
+    match event {
+      CollisionEvent::Started(d1, d2) => {
+        for d in [d1, d2].iter() {
+          for (p_id, mut p_data) in players.iter_mut() {
+            if p_id == d.rigid_body_entity() && d.normals()[0].y < 0.{
+              p_data.is_grounded = true;
+            }
+          }
+        }
+      }
+      CollisionEvent::Stopped(d1, d2) => {
+        for d in [d1, d2].iter() {
+          for (p_id, mut p_data) in players.iter_mut() {
+            if p_id == d.rigid_body_entity() {
+              p_data.is_grounded = false;
+            }
+          }
+        }
+      }
+    }
+  }
+}
