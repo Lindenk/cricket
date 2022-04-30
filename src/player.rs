@@ -4,21 +4,23 @@ use heron::prelude::*;
 #[derive(Component)]
 struct Player;
 
-pub fn spawn_player(mut commands: Commands) {
-  let size = Vec2::new(20., 20.);
+pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
+  let cricket_sprite = asset_server.load("sprites/scary_cricket_70_200.png");
+
+  let size = Vec2::new(70., 200.);
   commands.spawn_bundle(SpriteBundle {
-    sprite: Sprite {
-      color: Color::YELLOW,
-      custom_size: Some(size),
-      ..default()
-    },
-    transform: Transform::from_translation(Vec3::new(0., -300., 0.)),
+    texture: cricket_sprite,
+    transform: Transform::from_translation(Vec3::new(0., 0., 0.)),
     ..default()
   })
     .insert(Player)
-    .insert(RigidBody::KinematicVelocityBased)
+    .insert(RigidBody::Dynamic)
+    .insert(Velocity::from(Vec2::new(0., 1000.)))
     .insert(CollisionShape::Capsule {
-      half_segment: size.y - size.x,
-      radius: size.x
+      half_segment: (size.y - size.x) / 2.,
+      radius: size.x / 2.
+    })
+    .insert(PhysicMaterial {
+      ..default()
     });
 }

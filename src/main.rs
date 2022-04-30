@@ -46,7 +46,8 @@ fn spawn(mut commands: Commands) {
         })
         // Define restitution (so that it bounces)
         .insert(PhysicMaterial {
-            restitution: 1.5,
+            restitution: 0.,
+            friction: 1.0,
             ..Default::default()
         });
 
@@ -70,12 +71,12 @@ fn spawn(mut commands: Commands) {
         })
         // Define restitution (so that it bounces)
         .insert(PhysicMaterial {
-            restitution: 0.5,
+            restitution: 1.0,
             ..Default::default()
         });
     // The Ball
     let size = Vec2::new(30.0, 30.0);
-    commands
+    /*commands
         // Spawn a bundle that contains at least a `GlobalTransform`
         .spawn_bundle(SpriteBundle {
             sprite: Sprite {
@@ -99,7 +100,7 @@ fn spawn(mut commands: Commands) {
         .insert(PhysicMaterial {
             restitution: 1.2,
             ..Default::default()
-        });
+        });*/
 }
 
 fn log_collisions(mut events: EventReader<CollisionEvent>, asset_server: Res<AssetServer>, audio: Res<Audio>) {
