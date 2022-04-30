@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use heron::prelude::*;
 
+use std::collections::HashSet;
+
 #[derive(Component)]
 pub struct Player {
   pub movespeed: f32,
@@ -74,6 +76,7 @@ pub fn check_grounded(mut players: Query<(Entity, &mut Player)>, mut events: Eve
           }
         }
       }
+      _ => ()
     }
   }
 }
