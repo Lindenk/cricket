@@ -5,7 +5,7 @@ use std::f32::consts::PI;
 use bevy::prelude::*;
 use bevy_kira_audio::{Audio, AudioPlugin};
 
-use player::{spawn_player, handle_input};
+use player::{spawn_player, handle_input, check_grounded};
 
 use heron::*;
 
@@ -19,6 +19,7 @@ fn main() {
         .add_startup_system(spawn_player)
         //.add_system(log_collisions)
         .add_system(handle_input)
+        .add_system(check_grounded)
         .run();
 }
 
