@@ -1,11 +1,12 @@
 mod player;
-
+mod background;
 use std::f32::consts::PI;
 
 use bevy::prelude::*;
 use bevy_kira_audio::{Audio, AudioPlugin};
 
 use player::{spawn_player, handle_input};
+use background::{spawn_background, update_background, test_camera};
 
 use heron::*;
 
@@ -17,8 +18,12 @@ fn main() {
         .insert_resource(Gravity::from(Vec2::new(0.0, -600.0))) // Define the gravity
         .add_startup_system(spawn)
         .add_startup_system(spawn_player)
+        .add_startup_system(spawn_background)
+
         //.add_system(log_collisions)
         .add_system(handle_input)
+        .add_system(update_background)
+        .add_system(test_camera)
         .run();
 }
 
