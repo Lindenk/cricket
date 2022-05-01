@@ -34,7 +34,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     transform: Transform::from_translation(Vec3::new(0., 100., 0.)),
     ..default()
   })
-    .insert(Player{movespeed: 400., jumps: 2, is_grounded: true})
+    .insert(Player{movespeed: 400., jumps: 0, is_grounded: true})
     .insert(RigidBody::Dynamic)
     .insert(Velocity::from(Vec2::new(0., 0.)))
     .insert(CollisionShape::Capsule {
@@ -47,18 +47,18 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     .insert(RotationConstraints::lock());
 }
 
-pub fn handle_input(keyboard_input: Res<Input<KeyCode>>, gamepad_input: Res<Axis<GamepadAxis>>, mut players: Query<(&mut Velocity, &mut Player)>) {
+pub fn handle_input(input: Res<Input<KeyCode>>, mut players: Query<(&mut Velocity, &mut Player)>) {
   let mut vel_vec = Vec2::default();
 
   // handle left/right movement. Add a hop to each
   let mut should_kill_x_vel = true;
-  if keyboard_input.just_pressed(KeyCode::Right) {
+  if input.just_pressed(KeyCode::Right) {
     vel_vec.x += 1.;
     vel_vec.y += 180.;
-  } else if keyboard_input.just_pressed(KeyCode::Left) {
+  } else if input.just_pressed(KeyCode::Left) {
     vel_vec.x -= 1.;
     vel_vec.y += 180.;
-  } else if keyboard_input.just_pressed(KeyCode::Space) {
+  } else if input.just_pressed(KeyCode::Space) {
     vel_vec.y += 500.;
     should_kill_x_vel = false;
   } else {
@@ -66,7 +66,8 @@ pub fn handle_input(keyboard_input: Res<Input<KeyCode>>, gamepad_input: Res<Axis
   }
 
   for (mut v, mut p) in players.iter_mut() {
-    if p.jumps > 0 || p.is_grounded {
+    println!("I have {} jumps", p.jumps);
+    if p.jumps > 0 {
       if should_kill_x_vel {
         v.linear = Vec3::new(vel_vec.x * p.movespeed, vel_vec.y, 0.);
       } else {
@@ -78,29 +79,59 @@ pub fn handle_input(keyboard_input: Res<Input<KeyCode>>, gamepad_input: Res<Axis
   }
 }
 
-pub fn check_grounded(mut players: Query<(Entity, &mut Player)>, mut events: EventReader<CollisionEvent>) {
-  //println!("got here");
+pub fn check_grounded(
+  mut set: ParamSet<
+    (
+      &World, 
+      Query<Entity, With<Player>>, 
+      Query<(Entity, &mut Player)>
+    )>,
+  mut events: EventReader<CollisionEvent>) 
+{
+  let player_ids : Vec<_> = set.p1().iter().collect();
+  let mut players_to_reset_jump = vec![];
+
   for event in events.iter() {
     match event {
       CollisionEvent::Started(d1, d2) => {
         for d in [d1, d2].iter() {
-          for (p_id, mut p_data) in players.iter_mut() {
-            if p_id == d.rigid_body_entity() && d.normals()[0].y < 0. {
-              p_data.is_grounded = true;
-              p_data.jumps = 3;
+          for p_id in player_ids.iter() {
+            if p_id == &d.rigid_body_entity() {
+              let platform_id = if d1.rigid_body_entity() != *p_id 
+              { 
+                d1.rigid_body_entity()
+              } else { 
+                d2.rigid_body_entity() 
+              };
+              let player_y = set.p0().entity(*p_id).get::<Transform>().unwrap().translation.y;
+              let platform_y = set.p0().entity(platform_id).get::<Transform>().unwrap().translation.y;
+
+              if platform_y < player_y {
+                players_to_reset_jump.push(*p_id);
+              }
             }
           }
         }
       }
+
+      // TODO: This only works if the player is contacting exactly 1 platform. Fix this.
       CollisionEvent::Stopped(d1, d2) => {
-        for d in [d1, d2].iter() {
+        /*for d in [d1, d2].iter() {
           for (p_id, mut p_data) in players.iter_mut() {
             if p_id == d.rigid_body_entity() {
               p_data.is_grounded = false;
             }
           }
-        }
+        }*/
       }
+    }
+  }
+
+  for (p_id, mut data) in set.p2().iter_mut() {
+    if players_to_reset_jump.contains(&p_id) {
+      data.is_grounded = true;
+      data.jumps = 3;
+      println!("Reset jumps");
     }
   }
 }
