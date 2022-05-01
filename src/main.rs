@@ -21,7 +21,7 @@ fn main() {
 
         //.add_system(log_collisions)
         .add_system(update_background)
-        .add_system(test_camera)
+        //.add_system(test_camera)
         .run();
 }
 
