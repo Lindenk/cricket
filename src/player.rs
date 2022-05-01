@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use heron::prelude::*;
 
-use crate::level::PhysicsLayers;
+use crate::level::{PhysicsLayers, VictoryEvent};
 
 pub struct PlayerPlugin;
 
@@ -13,6 +13,7 @@ impl Plugin for PlayerPlugin {
       .add_system(check_grounded)
       .add_system(camera_follow)
       .add_system(offscreen_death)
+      .add_system(victory_spin)
       .add_event::<JumpEvent>()
       .add_event::<OffscreenDeathEvent>();
   }
@@ -161,6 +162,16 @@ pub fn offscreen_death(mut players: Query<&mut Transform, With<Player>>, mut off
     if player.translation.y < -500. {
       player.translation = Vec3::new(0., 100., 0.);
       offscreen_event.send(OffscreenDeathEvent());
+    }
+  }
+}
+
+pub fn victory_spin(mut commands: Commands, mut players: Query<(Entity, &mut Velocity), With<Player>>, mut ev_victory: EventReader<VictoryEvent>) 
+{
+  for _ in ev_victory.iter() {
+    for (pe, mut vel) in players.iter_mut() {
+      commands.entity(pe).remove::<RotationConstraints>();
+      *vel = vel.with_angular(AxisAngle::new(Vec3::new(0., 0., 1.), 100.));
     }
   }
 }
