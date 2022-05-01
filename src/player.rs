@@ -47,18 +47,18 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     .insert(RotationConstraints::lock());
 }
 
-pub fn handle_input(input: Res<Input<KeyCode>>, mut players: Query<(&mut Velocity, &mut Player)>) {
+pub fn handle_input(keyboard_input: Res<Input<KeyCode>>, gamepad_input: Res<Axis<GamepadAxis>>, mut players: Query<(&mut Velocity, &mut Player)>) {
   let mut vel_vec = Vec2::default();
 
   // handle left/right movement. Add a hop to each
   let mut should_kill_x_vel = true;
-  if input.just_pressed(KeyCode::Right) {
+  if keyboard_input.just_pressed(KeyCode::Right) || gamepad_input.just_pressed(GamepadAxis::) {
     vel_vec.x += 1.;
     vel_vec.y += 180.;
-  } else if input.just_pressed(KeyCode::Left) {
+  } else if keyboard_input.just_pressed(KeyCode::Left) {
     vel_vec.x -= 1.;
     vel_vec.y += 180.;
-  } else if input.just_pressed(KeyCode::Space) {
+  } else if keyboard_input.just_pressed(KeyCode::Space) {
     vel_vec.y += 500.;
     should_kill_x_vel = false;
   } else {
@@ -85,7 +85,7 @@ pub fn check_grounded(mut players: Query<(Entity, &mut Player)>, mut events: Eve
       CollisionEvent::Started(d1, d2) => {
         for d in [d1, d2].iter() {
           for (p_id, mut p_data) in players.iter_mut() {
-            if p_id == d.rigid_body_entity() /*&& d.normals()[0].y < 0.*/{
+            if p_id == d.rigid_body_entity() && d.normals()[0].y < 0. {
               p_data.is_grounded = true;
               p_data.jumps = 3;
             }
