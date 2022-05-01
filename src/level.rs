@@ -8,9 +8,12 @@ impl Plugin for LevelPlugin {
     app
       .add_startup_system(spawn_platforms)
       .add_startup_system(spawn_exit)
+      .add_event::<VictoryEvent>()
       .add_system(on_touch_exit);
   }
 }
+
+pub struct VictoryEvent;
 
 #[derive(Component)]
 pub struct Exit;
@@ -89,7 +92,7 @@ pub fn spawn_exit(mut commands: Commands) {
       .with_mask(PhysicsLayers::Player));
 }
 
-pub fn on_touch_exit(mut commands: Commands, mut events: EventReader<CollisionEvent>) {
+pub fn on_touch_exit(mut commands: Commands, mut events: EventReader<CollisionEvent>, mut victory_ev: EventWriter<VictoryEvent>) {
   for ev in events.iter() {
     match ev { 
       CollisionEvent::Started(d1, d2) => {
@@ -98,6 +101,7 @@ pub fn on_touch_exit(mut commands: Commands, mut events: EventReader<CollisionEv
         {
           println!("{:?}", d);
           commands.entity(d.rigid_body_entity()).despawn();
+          victory_ev.send(VictoryEvent);
         }
         //f d1.collision_layers.contains(PhysicsLayers::Pickup) || d2.collision_layers.contains(Phy)
       }
