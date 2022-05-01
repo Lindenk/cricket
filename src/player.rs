@@ -10,9 +10,14 @@ impl Plugin for PlayerPlugin {
       .add_system(handle_input)
       .add_system(check_grounded)
       .add_system(camera_follow)
-      .add_system(offscreen_death);
+      .add_system(offscreen_death)
+      .add_event::<JumpEvent>()
+      .add_event::<OffscreenDeathEvent>();
   }
 }
+
+pub struct JumpEvent(pub i32);
+pub struct OffscreenDeathEvent();
 
 #[derive(Component)]
 pub struct Player {
@@ -47,7 +52,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     .insert(RotationConstraints::lock());
 }
 
-pub fn handle_input(input: Res<Input<KeyCode>>, mut players: Query<(&mut Velocity, &mut Player)>) {
+pub fn handle_input(input: Res<Input<KeyCode>>, mut ev_jump: EventWriter<JumpEvent>, mut players: Query<(&mut Velocity, &mut Player)>) {
   let mut vel_vec = Vec2::default();
 
   // handle left/right movement. Add a hop to each
@@ -74,6 +79,7 @@ pub fn handle_input(input: Res<Input<KeyCode>>, mut players: Query<(&mut Velocit
         v.linear.y = vel_vec.y;
         v.linear.x += vel_vec.x * p.movespeed;
       }
+      ev_jump.send(JumpEvent(3-p.jumps));
       p.jumps -= 1;
     }
   }
@@ -145,11 +151,11 @@ pub fn camera_follow(mut set: ParamSet<(Query<&mut Transform, With<Camera>>, Que
   camera_trans.translation = player_trans;
 }
 
-pub fn offscreen_death(mut players: Query<&mut Transform, With<Player>>) {
+pub fn offscreen_death(mut players: Query<&mut Transform, With<Player>>, mut offscreen_event: EventWriter<OffscreenDeathEvent>) {
   for mut player in players.iter_mut() {
     if player.translation.y < -500. {
-      println!("test");
       player.translation = Vec3::new(0., 100., 0.);
+      offscreen_event.send(OffscreenDeathEvent());
     }
   }
 }

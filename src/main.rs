@@ -2,10 +2,11 @@ mod player;
 mod background;
 mod level;
 mod text_overlay;
+mod audio;
 
 use bevy::prelude::*;
 use bevy_kira_audio::{Audio, AudioPlugin};
-
+use audio::GameAudioPlugin;
 use background::{spawn_background, update_background, test_camera};
 use level::{LevelPlugin};
 use player::{PlayerPlugin};
@@ -23,6 +24,7 @@ fn main() {
         .insert_resource(Gravity::from(Vec2::new(0.0, -600.0))) // Define the gravity
         .add_plugin(PlayerPlugin)
         .add_plugin(LevelPlugin)
+        .add_plugin(GameAudioPlugin)
         .add_plugin(TextOverlayPlugin)
         //.add_system(log_collisions)
         .add_system(update_background)
