@@ -88,5 +88,8 @@ fn victory_audio(
 ) {
     for ev in event_reader.iter() {
         audio.play_in_channel(asset_server.load("sounds/victory_sound.wav"), &channels.sfx);
+        audio.stop_channel(&channels.background);
+        audio.play_looped_in_channel(asset_server.load("sounds/intro.wav"), &channels.background);
+
     }
 }
