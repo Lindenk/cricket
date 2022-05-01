@@ -52,7 +52,7 @@ pub fn handle_input(keyboard_input: Res<Input<KeyCode>>, gamepad_input: Res<Axis
 
   // handle left/right movement. Add a hop to each
   let mut should_kill_x_vel = true;
-  if keyboard_input.just_pressed(KeyCode::Right) || gamepad_input.just_pressed(GamepadAxis::) {
+  if keyboard_input.just_pressed(KeyCode::Right) {
     vel_vec.x += 1.;
     vel_vec.y += 180.;
   } else if keyboard_input.just_pressed(KeyCode::Left) {
@@ -110,7 +110,7 @@ pub fn camera_follow(mut set: ParamSet<(Query<&mut Transform, With<Camera>>, Que
   let mut camera_trans = set.p0();
   let mut camera_trans = camera_trans.single_mut();
 
-  player_trans.y = player_trans.y.max(-100.);
+  player_trans.y = player_trans.y.max(-50.);
   camera_trans.translation = player_trans;
 }
 

@@ -20,9 +20,9 @@ pub fn spawn_background(mut commands: Commands, asset_server: Res<AssetServer>, 
   // sprite, size, y, z away from 1000 (you're at 1000)
   let bg_layers = [
   //  (bg_1, bg_1_size, 0., -990.),
-    (bg_2, bg_2_size, -300., -400.),
-    (bg_3, bg_3_size, -350., -200.),
-    (bg_4, bg_4_size, -400., -100.)
+    (bg_2, bg_2_size, -350., -400.),
+    (bg_3, bg_3_size, -400., -200.),
+    (bg_4, bg_4_size, -450., -100.)
   ];
 
   let mut layer_number = 1.;
