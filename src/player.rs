@@ -28,7 +28,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
       custom_size: Some(size),
       ..default()
     },
-    transform: Transform::from_translation(Vec3::new(0., 0., 0.)),
+    transform: Transform::from_translation(Vec3::new(0., 100., 0.)),
     ..default()
   })
     .insert(Player{movespeed: 300., is_grounded: false})
