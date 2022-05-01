@@ -8,7 +8,8 @@ impl Plugin for PlayerPlugin {
     app
       .add_startup_system(spawn_player)
       .add_system(handle_input)
-      .add_system(check_grounded);
+      .add_system(check_grounded)
+      .add_system(camera_follow);
   }
 }
 
@@ -89,4 +90,12 @@ pub fn check_grounded(mut players: Query<(Entity, &mut Player)>, mut events: Eve
       }
     }
   }
+}
+
+pub fn camera_follow(mut set: ParamSet<(Query<&mut Transform, With<Camera>>, Query<&Transform, With<Player>>)>) {
+  let player_trans = set.p1().single().translation.clone();
+  let mut camera_trans = set.p0();
+  let mut camera_trans = camera_trans.single_mut();
+
+  camera_trans.translation = player_trans;
 }
