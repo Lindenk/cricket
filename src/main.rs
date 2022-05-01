@@ -7,7 +7,7 @@ mod audio;
 use bevy::prelude::*;
 use bevy_kira_audio::{Audio, AudioPlugin};
 use audio::GameAudioPlugin;
-use background::{spawn_background, update_background, test_camera};
+use background::{spawn_background, update_background};
 use level::{LevelPlugin};
 use player::{PlayerPlugin};
 use text_overlay::TextOverlayPlugin;

@@ -96,12 +96,15 @@ pub fn on_touch_exit(mut commands: Commands, mut events: EventReader<CollisionEv
   for ev in events.iter() {
     match ev { 
       CollisionEvent::Started(d1, d2) => {
-        println!("{:?}", ev);
+        // println!("{:?}", ev);
         for d in [d1, d2].iter().filter(|d| d.collision_layers().contains_group(PhysicsLayers::Pickup)) 
         {
-          println!("{:?}", d);
+          // println!("{:?}", d);
           commands.entity(d.rigid_body_entity()).despawn();
+          println!("I SHOULD SENT THE VICTORY EVENT");
           victory_ev.send(VictoryEvent);
+          println!("I SHOULD HAVE SENT THE VICTORY EVENT");
+
         }
         //f d1.collision_layers.contains(PhysicsLayers::Pickup) || d2.collision_layers.contains(Phy)
       }
