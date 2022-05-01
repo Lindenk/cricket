@@ -1,6 +1,8 @@
 mod player;
 mod background;
 mod level;
+mod text_overlay;
+
 use bevy::prelude::*;
 use bevy_kira_audio::{Audio, AudioPlugin};
 
