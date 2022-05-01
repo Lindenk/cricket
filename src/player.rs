@@ -31,7 +31,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     transform: Transform::from_translation(Vec3::new(0., 0., 0.)),
     ..default()
   })
-    .insert(Player{movespeed: 200., is_grounded: false})
+    .insert(Player{movespeed: 300., is_grounded: false})
     .insert(RigidBody::Dynamic)
     .insert(Velocity::from(Vec2::new(0., 0.)))
     .insert(CollisionShape::Capsule {
@@ -54,6 +54,8 @@ pub fn handle_input(input: Res<Input<KeyCode>>, mut players: Query<(&mut Velocit
   } else if input.just_pressed(KeyCode::Left) {
     vel_vec.x -= 1.;
     vel_vec.y += 120.;
+  } else if input.just_pressed(KeyCode::Space) {
+    vel_vec.y += 500.;
   }
 
   for (mut v, p) in players.iter_mut() {
@@ -64,6 +66,7 @@ pub fn handle_input(input: Res<Input<KeyCode>>, mut players: Query<(&mut Velocit
 }
 
 pub fn check_grounded(mut players: Query<(Entity, &mut Player)>, mut events: EventReader<CollisionEvent>) {
+  //println!("got here");
   for event in events.iter() {
     match event {
       CollisionEvent::Started(d1, d2) => {
