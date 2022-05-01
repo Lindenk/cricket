@@ -15,6 +15,7 @@ use heron::*;
 
 fn main() {
     App::new()
+        .insert_resource(ClearColor(Color::rgb(183./255., 220./255., 240./255.)))
         .add_plugins(DefaultPlugins)
         .add_plugin(AudioPlugin)
         .add_plugin(PhysicsPlugin::default()) // Add the plugin
