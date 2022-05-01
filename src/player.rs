@@ -17,6 +17,7 @@ impl Plugin for PlayerPlugin {
 #[derive(Component)]
 pub struct Player {
   pub movespeed: f32,
+  pub jumps: i32,
   pub is_grounded: bool
 }
 
@@ -33,7 +34,7 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     transform: Transform::from_translation(Vec3::new(0., 100., 0.)),
     ..default()
   })
-    .insert(Player{movespeed: 300., is_grounded: false})
+    .insert(Player{movespeed: 400., jumps: 2, is_grounded: true})
     .insert(RigidBody::Dynamic)
     .insert(Velocity::from(Vec2::new(0., 0.)))
     .insert(CollisionShape::Capsule {
@@ -46,23 +47,33 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     .insert(RotationConstraints::lock());
 }
 
-pub fn handle_input(input: Res<Input<KeyCode>>, mut players: Query<(&mut Velocity, &Player)>) {
+pub fn handle_input(input: Res<Input<KeyCode>>, mut players: Query<(&mut Velocity, &mut Player)>) {
   let mut vel_vec = Vec2::default();
 
   // handle left/right movement. Add a hop to each
+  let mut should_kill_x_vel = true;
   if input.just_pressed(KeyCode::Right) {
     vel_vec.x += 1.;
-    vel_vec.y += 120.;
+    vel_vec.y += 180.;
   } else if input.just_pressed(KeyCode::Left) {
     vel_vec.x -= 1.;
-    vel_vec.y += 120.;
+    vel_vec.y += 180.;
   } else if input.just_pressed(KeyCode::Space) {
     vel_vec.y += 500.;
+    should_kill_x_vel = false;
+  } else {
+    return;
   }
 
-  for (mut v, p) in players.iter_mut() {
-    if p.is_grounded {
-      v.linear += Vec3::new(vel_vec.x * p.movespeed, vel_vec.y, 0.);
+  for (mut v, mut p) in players.iter_mut() {
+    if p.jumps > 0 || p.is_grounded {
+      if should_kill_x_vel {
+        v.linear = Vec3::new(vel_vec.x * p.movespeed, vel_vec.y, 0.);
+      } else {
+        v.linear.y = vel_vec.y;
+        v.linear.x += vel_vec.x * p.movespeed;
+      }
+      p.jumps -= 1;
     }
   }
 }
@@ -74,8 +85,9 @@ pub fn check_grounded(mut players: Query<(Entity, &mut Player)>, mut events: Eve
       CollisionEvent::Started(d1, d2) => {
         for d in [d1, d2].iter() {
           for (p_id, mut p_data) in players.iter_mut() {
-            if p_id == d.rigid_body_entity() && d.normals()[0].y < 0.{
+            if p_id == d.rigid_body_entity() /*&& d.normals()[0].y < 0.*/{
               p_data.is_grounded = true;
+              p_data.jumps = 3;
             }
           }
         }
@@ -94,10 +106,11 @@ pub fn check_grounded(mut players: Query<(Entity, &mut Player)>, mut events: Eve
 }
 
 pub fn camera_follow(mut set: ParamSet<(Query<&mut Transform, With<Camera>>, Query<&Transform, With<Player>>)>) {
-  let player_trans = set.p1().single().translation.clone();
+  let mut player_trans = set.p1().single().translation.clone();
   let mut camera_trans = set.p0();
   let mut camera_trans = camera_trans.single_mut();
 
+  player_trans.y = player_trans.y.max(-100.);
   camera_trans.translation = player_trans;
 }
 
