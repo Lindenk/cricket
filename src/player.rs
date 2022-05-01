@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use heron::prelude::*;
 
+use crate::level::PhysicsLayers;
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
@@ -49,7 +51,10 @@ pub fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     .insert(PhysicMaterial {
       ..default()
     })
-    .insert(RotationConstraints::lock());
+    .insert(RotationConstraints::lock())
+    .insert(CollisionLayers::none()
+      .with_group(PhysicsLayers::Player)
+      .with_masks(&[PhysicsLayers::Platform, PhysicsLayers::Pickup]));
 }
 
 pub fn handle_input(input: Res<Input<KeyCode>>, mut ev_jump: EventWriter<JumpEvent>, mut players: Query<(&mut Velocity, &mut Player)>) {
